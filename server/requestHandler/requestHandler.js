@@ -2,7 +2,7 @@
 // const main_view = fs.readFileSync('../pages/main.html');
 // const orderlist_view = fs.readFileSync('../pages/orderlist.html');
 
-// const mariadb = require('./database/connect/mariadb');
+const mariadb = require('../database/mariadb');
 
 // function main(response) {
 //     console.log('main');
@@ -91,16 +91,23 @@
 
 
 
-
-
-
-
-function main(req, res) {
+async function main(req, res) {
     console.log('main');
     
-    res.writeHead(200, { 'Content-Type': 'text/plain; charset=UTF-8' });
-    res.write('Main 페이지');
-    res.end();
+    try {
+        const conn = await mariadb.getConnection();
+        const rows = await conn.query("SELECT * FROM product");
+        conn.release(); // 연결 해제
+
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=UTF-8' });
+        res.write(JSON.stringify(rows)); // JSON 형식으로 응답
+        res.end();
+    } catch (err) {
+        console.error(err);
+        res.writeHead(500, { 'Content-Type': 'text/plain; charset=UTF-8' });
+        res.write('데이터를 가져오는 중 오류가 발생했습니다.');
+        res.end();
+    }
 }
 
 function name(req, res, decodedPathname) {
