@@ -40,9 +40,9 @@ function blackRacket(response) {
     })
 }
 
-function order(response, productId) {
+function order(response, decodedPathname, productId) {
     response.writeHead(200, {'Content-Type' : 'text/html'});
-
+    
     mariadb.query("INSERT INTO orderlist VALUES (" + productId + ", '" + new Date().toLocaleDateString() + "');", function(err, rows) {
         console.log(rows);
     })

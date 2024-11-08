@@ -7,6 +7,8 @@ function startServer(port = 3000, route, handle) {
     // 요청 URL을 파싱하여 경로 추출
     let pathname = url.parse(req.url).pathname;
 
+    let queryData = url.parse(req.url, true).query;
+
     // /favicon.ico 요청 무시
     if (pathname === '/favicon.ico') {
         res.writeHead(204); // No Content 응답 코드
@@ -14,7 +16,7 @@ function startServer(port = 3000, route, handle) {
         return;
       }
 
-    route(pathname, handle, res); // 경로와 핸들러, 요청 및 응답 객체 전달
+    route(pathname, handle, res, queryData.productId); // 경로와 핸들러, 요청 및 응답 객체 전달
   });
 
   server.listen(port, () => {
