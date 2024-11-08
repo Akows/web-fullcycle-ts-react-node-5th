@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title> Tennis Market </title>
+        <link rel="stylesheet" href="../style/main.css">
+    </head>
+    <body>
+        <h1>Tennis Market</h1>
+        <div id="txt_welcome">
+            Tennis Market에 오신 것을 환영합니다!<br>
+            즐거운 쇼핑이 되시길 바랍니다.
+            <br>
+            <br>
+            <a href="./orderlist"> 주문 목록 </a>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr;">
+            <div class="card">
+                <img class="card_img" src="../img/redRacket.png">
+                <p class="card_title"> 레드 라켓Red Racket </p>
+                <input class="card_button" type="button" value="주문하기" 
+                    onclick="location.href='/order?productId=1'">
+            </div>
+            <div class="card">
+                <img class="card_img" src="../img/blueRacket.png">
+                <p class="card_title"> 블루 라켓Blue Racket </p>
+                <input class="card_button" type="button" value="주문하기" 
+                    onclick="alert(2);">
+            </div>
+            <div class="card">
+                <img class="card_img" src="../img/blackRacket.png">
+                <p class="card_title"> 블랙 라켓Black Racket </p>
+                <input class="card_button" type="button" value="주문하기" 
+                    onclick="alert(3);">
+            </div>
+        </div>
+    </body>
+</html>
