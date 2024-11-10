@@ -16,7 +16,7 @@ function startServer(port = 3000, route, handle) {
         return;
       }
 
-    route(pathname, handle, res, queryData.productId); // 경로와 핸들러, 요청 및 응답 객체 전달
+    route(pathname, handle, req, res, queryData.productId); // 경로와 핸들러, 요청 및 응답 객체 전달
   });
 
   server.listen(port, () => {

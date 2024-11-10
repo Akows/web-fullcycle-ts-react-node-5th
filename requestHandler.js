@@ -1,10 +1,11 @@
 const fs = require('fs');
 const main_view = fs.readFileSync('./main.html');
 const orderlist_view = fs.readFileSync('./orderlist.html');
+const path = require('path');
 
 const mariadb = require('./database/connect/mariadb');
 
-function main(response) {
+function main(req, response) {
     console.log('main');
 
     mariadb.query("SELECT * FROM product", function(err, rows) {
@@ -16,7 +17,7 @@ function main(response) {
     response.end();    
 }
 
-function redRacket(response) {
+function redRacket(req, response) {
     fs.readFile('./img/redRacket.png', function(err, data) {
         response.writeHead(200, {'Content-Type' : 'text/html'});
         response.write(data);
@@ -24,7 +25,7 @@ function redRacket(response) {
     })
 }
 
-function blueRacket(response) {
+function blueRacket(req, response) {
     fs.readFile('./img/blueRacket.png', function(err, data) {
         response.writeHead(200, {'Content-Type' : 'text/html'});
         response.write(data);
@@ -32,7 +33,7 @@ function blueRacket(response) {
     })
 }
 
-function blackRacket(response) {
+function blackRacket(req, response) {
     fs.readFile('./img/blackRacket.png', function(err, data) {
         response.writeHead(200, {'Content-Type' : 'text/html'});
         response.write(data);
@@ -40,9 +41,9 @@ function blackRacket(response) {
     })
 }
 
-function order(response, decodedPathname, productId) {
+function order(req, response, decodedPathname, productId) {
     response.writeHead(200, {'Content-Type' : 'text/html'});
-    
+
     mariadb.query("INSERT INTO orderlist VALUES (" + productId + ", '" + new Date().toLocaleDateString() + "');", function(err, rows) {
         console.log(rows);
     })
@@ -51,7 +52,7 @@ function order(response, decodedPathname, productId) {
     response.end(); 
 }
 
-function orderlist(response) {
+function orderlist(req, response) {
     console.log('orderlist');
 
     response.writeHead(200, {'Content-Type' : 'text/html'});
@@ -72,6 +73,24 @@ function orderlist(response) {
 }
 
 
+
+function serveCSS(req, res) {
+    // 요청된 URL에서 파일 경로 추출
+    const cssFilePath = path.join(__dirname, './', path.basename(req.url));
+
+    fs.readFile(cssFilePath, (err, data) => {
+        if (err) {
+            res.writeHead(404, { 'Content-Type': 'text/plain' });
+            res.write('CSS 파일을 찾을 수 없습니다.');
+            res.end();
+            return;
+        }
+        res.writeHead(200, { 'Content-Type': 'text/css' });
+        res.write(data);
+        res.end();
+    });
+}
+
 let handle = {}; // key:value
 handle['/'] = main;
 handle['/order'] = order;
@@ -81,5 +100,9 @@ handle['/orderlist'] = orderlist;
 handle['/img/redRacket.png'] = redRacket;
 handle['/img/blueRacket.png'] = blueRacket;
 handle['/img/blackRacket.png'] = blackRacket;
+
+// CSS 핸들러 등록
+handle['/main.css'] = serveCSS;
+handle['/orderlist.css'] = serveCSS;
 
 exports.handle = handle;
