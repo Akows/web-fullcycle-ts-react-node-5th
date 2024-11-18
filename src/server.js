@@ -11,7 +11,7 @@ app.get('/', (req, res) => {
 
 app.use('/test1/:channelName', api_test_01);
 
-app.use('/test2', api_test_02);
+app.use('/test2/:id?', api_test_02);
 
 app.listen(3000, () => {
   console.log(`서버가 ${PORT} 포트에서 정상 동작 중입니다.`);
