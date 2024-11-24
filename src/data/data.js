@@ -6,6 +6,9 @@ const fruits = [
     {id: 5, name: 'dragon fruit'},
 ]
 
+const memberDatabase = new Map();
+
 module.exports = {
-    fruits
+    fruits,
+    memberDatabase
 };
