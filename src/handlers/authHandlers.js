@@ -33,9 +33,10 @@ const deleteMember = (req, res) => {
     const { id } = req.params;
     const index = parseInt(id);
 
-    if (memberDatabase.has(index)) {
+    const user = memberDatabase.get(index)
+    if (user) {
         memberDatabase.delete(index);
-        res.status(200).json({ message: `ID ${index}의 회원이 삭제되었습니다.` });
+        res.status(200).json({ message: `${user.name}님, 지금까지 감사했습니다.` });
     } 
     else {
         res.status(404).json({ message: `ID ${index}의 회원 정보를 찾을 수 없습니다.` });
