@@ -7,8 +7,10 @@ const fruits = [
 ]
 
 const memberDatabase = new Map();
+const channelDatabase = new Map();
 
 module.exports = {
     fruits,
-    memberDatabase
+    memberDatabase,
+    channelDatabase
 };
