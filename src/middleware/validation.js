@@ -1,4 +1,22 @@
 const { body, param, validationResult } = require('express-validator');
+const jwt = require('jsonwebtoken');
+
+// JWT 토큰 검증 미들웨어
+const authenticateToken = (req, res, next) => {
+  const token = req.header('Authorization')?.split(' ')[1];
+
+  if (!token) {
+      return res.status(401).json({ message: '인증 토큰이 필요합니다.' });
+  }
+
+  try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = decoded; // 토큰의 payload 정보를 req 객체에 추가
+      next();
+  } catch (error) {
+      return res.status(403).json({ message: '유효하지 않은 토큰입니다.' });
+  }
+};
 
 // 로그인 요청 유효성 검사 미들웨어
 const validateLoginRequest = [
@@ -153,7 +171,8 @@ const validateUpdateChannel = [
     },
 ];
   
-module.exports = { 
+module.exports = {
+    authenticateToken,
     validateLoginRequest, 
     validateCreateMember, 
     validateGetMemberData, 
