@@ -3,12 +3,12 @@ const app = express();
 const dotenv = require('dotenv');
 
 // 라우터 파일 호출
-const booksRouter = require('./routes/books');
-const usersRouter = require('./routes/users');
-const cartRouter = require('./routes/cart');
-const ordersRouter = require('./routes/orders');
-const mainRouter = require('./routes/main');
-const authRouter = require('./routes/auth');
+const booksRouter = require('./src/routes/books');
+const usersRouter = require('./src/routes/users');
+const cartRouter = require('./src/routes/cart');
+const ordersRouter = require('./src/routes/orders');
+const mainRouter = require('./src/routes/main');
+const authRouter = require('./src/routes/auth');
 
 // dotenv 모듈 설정
 dotenv.config();
