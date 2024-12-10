@@ -1,19 +1,22 @@
-exports.getProfile = (req, res) => {
-    res.json({
-      id: 1,
-      name: "John Doe",
-      email: "user@example.com",
-      join_date: "2024-01-01",
-    });
-  };
-  
-  exports.updateProfile = (req, res) => {
-    const { name, email } = req.body;
-  
-    if (!name || !email) {
-      return res.status(400).json({ error: "Invalid profile data" });
+const usersService = require('../services/usersService');
+
+exports.getProfile = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const profile = await usersService.getProfile(userId);
+        res.json(profile);
+    } catch (error) {
+        res.status(404).json({ error: error.message });
     }
-  
-    res.json({ message: "프로필이 성공적으로 업데이트되었습니다." });
-  };
-  
+};
+
+exports.updateProfile = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { name, email } = req.body;
+        await usersService.updateProfile(userId, name, email);
+        res.json({ message: '프로필이 성공적으로 업데이트되었습니다.' });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
