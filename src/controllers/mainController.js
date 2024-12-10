@@ -1,10 +1,11 @@
+const { StatusCodes } = require('http-status-codes');
 const mainService = require('../services/mainService');
 
 exports.getMainPageData = async (req, res) => {
     try {
         const data = await mainService.getMainPageData();
-        res.json(data);
+        res.status(StatusCodes.OK).json(data);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
     }
 };
