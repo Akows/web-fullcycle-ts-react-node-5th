@@ -1,5 +1,4 @@
 const { StatusCodes } = require('http-status-codes');
-const { validateId, validateCategoryId } = require('../middlewares/validation');
 const booksService = require('../services/booksService');
 
 exports.getBooks = async (req, res) => {
