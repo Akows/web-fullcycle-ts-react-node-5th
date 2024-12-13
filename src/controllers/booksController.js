@@ -28,3 +28,17 @@ exports.getBooksByCategory = async (req, res) => {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
     }
 };
+
+exports.getFilteredBooks = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1; // 기본값: 1
+        const limit = parseInt(req.query.limit) || 10; // 기본값: 10
+        const categoryId = req.query.categoryId ? parseInt(req.query.categoryId) : null;
+        const isNew = req.query.isNew === 'true'; // 신간 여부
+
+        const data = await booksService.getFilteredBooks(page, limit, categoryId, isNew);
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
