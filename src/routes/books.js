@@ -15,4 +15,13 @@ router.get('/category/:categoryId', validateCategoryId, booksController.getBooks
 // 필터링된 도서 조회 
 router.get('/filtered', validateFilteredBooks, booksController.getFilteredBooks);
 
+// 좋아요 추가
+router.post('/book/:id/like', validateId, booksController.addLike);
+
+// 좋아요 취소
+router.delete('/book/:id/like', validateId, booksController.removeLike);
+
+// 좋아요 여부 확인
+router.get('/book/:id/like', validateId, booksController.checkLike);
+
 module.exports = router;

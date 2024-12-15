@@ -133,3 +133,115 @@ exports.getFilteredBooks = async (page = 1, limit = 10, categoryId = null, isNew
         books: rows,                                  // 조회된 도서 데이터
     };
 };
+
+// 좋아요 추가 기능
+exports.addLike = async (userId, bookId) => {
+    // 데이터베이스 연결을 가져옵니다. 트랜잭션을 사용하기 위해 connection 객체를 활용합니다.
+    const connection = await db.getConnection();
+    try {
+        // 트랜잭션 시작
+        await connection.beginTransaction();
+
+        // 1. book_id가 유효한지 확인합니다.
+        //    - EXISTS 서브쿼리를 사용하여 books 테이블에 해당 book_id가 존재하는지 확인합니다.
+        //    - EXISTS는 조건을 만족하는 첫 번째 레코드를 찾으면 즉시 종료하므로 성능이 좋습니다.
+        const checkQuery = `
+            SELECT EXISTS (
+                SELECT 1 FROM books WHERE id = ?
+            ) AS book_exists
+        `;
+        const [[{ book_exists }]] = await connection.execute(checkQuery, [bookId]);
+        if (!book_exists) {
+            throw new Error('존재하지 않는 도서 ID입니다.'); // 도서 ID가 유효하지 않으면 에러를 던집니다.
+        }
+
+        // 2. 좋아요 추가
+        //    - likes 테이블에 user_id와 book_id를 삽입합니다.
+        //    - FOREIGN KEY 제약 조건으로 인해 user_id와 book_id가 각각 users, books 테이블에 존재해야 합니다.
+        const likeQuery = `INSERT INTO likes (user_id, book_id) VALUES (?, ?)`;
+        await connection.execute(likeQuery, [userId, bookId]);
+
+        // 3. books 테이블의 좋아요 수 업데이트
+        //    - COUNT()를 사용하여 likes 테이블에서 해당 book_id의 좋아요 개수를 계산합니다.
+        //    - 계산된 값을 books 테이블의 likes 필드에 업데이트합니다.
+        const updateQuery = `
+            UPDATE books
+            SET likes = (
+                SELECT COUNT(*) FROM likes WHERE book_id = ?
+            )
+            WHERE id = ?
+        `;
+        await connection.execute(updateQuery, [bookId, bookId]);
+
+        // 트랜잭션 커밋: 모든 작업이 성공적으로 수행되었으므로 변경 사항을 확정합니다.
+        await connection.commit();
+    } catch (error) {
+        // 트랜잭션 롤백: 오류 발생 시 모든 변경 사항을 취소합니다.
+        await connection.rollback();
+        throw error; // 에러를 호출한 곳으로 다시 전달합니다.
+    } finally {
+        // 데이터베이스 연결 해제: 사용한 connection 객체를 반환합니다.
+        connection.release();
+    }
+};
+
+// 좋아요 삭제 기능
+exports.removeLike = async (userId, bookId) => {
+    const connection = await db.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        // 1. 좋아요가 존재하는지 확인합니다.
+        //    - EXISTS 서브쿼리를 사용하여 likes 테이블에 해당 user_id와 book_id 조합이 있는지 확인합니다.
+        const checkQuery = `
+            SELECT EXISTS (
+                SELECT 1 FROM likes WHERE user_id = ? AND book_id = ?
+            ) AS like_exists
+        `;
+        const [[{ like_exists }]] = await connection.execute(checkQuery, [userId, bookId]);
+        if (!like_exists) {
+            throw new Error('좋아요가 존재하지 않습니다.'); // 좋아요가 없으면 에러를 던집니다.
+        }
+
+        // 2. 좋아요 삭제
+        //    - likes 테이블에서 user_id와 book_id가 일치하는 레코드를 삭제합니다.
+        const deleteQuery = `DELETE FROM likes WHERE user_id = ? AND book_id = ?`;
+        await connection.execute(deleteQuery, [userId, bookId]);
+
+        // 3. books 테이블의 좋아요 수 업데이트
+        //    - COUNT()를 사용하여 likes 테이블에서 해당 book_id의 좋아요 개수를 다시 계산합니다.
+        const updateQuery = `
+            UPDATE books
+            SET likes = (
+                SELECT COUNT(*) FROM likes WHERE book_id = ?
+            )
+            WHERE id = ?
+        `;
+        await connection.execute(updateQuery, [bookId, bookId]);
+
+        // 트랜잭션 커밋
+        await connection.commit();
+    } catch (error) {
+        // 트랜잭션 롤백
+        await connection.rollback();
+        throw error;
+    } finally {
+        // 데이터베이스 연결 해제
+        connection.release();
+    }
+};
+
+// 좋아요 여부 확인 기능
+exports.checkLike = async (userId, bookId) => {
+    // SQL 쿼리: likes 테이블에 user_id와 book_id 조합이 존재하는지 확인합니다.
+    const query = `
+        SELECT EXISTS (
+            SELECT 1 FROM likes WHERE user_id = ? AND book_id = ?
+        ) AS is_liked
+    `;
+    // 쿼리를 실행하여 결과를 가져옵니다.
+    const [[{ is_liked }]] = await db.execute(query, [userId, bookId]);
+
+    // EXISTS 결과는 1 또는 0으로 반환되므로, 1이면 true, 0이면 false를 반환합니다.
+    return is_liked === 1;
+};

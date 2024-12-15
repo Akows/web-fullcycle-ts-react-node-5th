@@ -42,3 +42,39 @@ exports.getFilteredBooks = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+// 좋아요 추가
+exports.addLike = async (req, res) => {
+    try {
+        const { userId } = req.body; // Body에서 userId를 받음
+        const bookId = req.params.id; // URL 파라미터로 도서 ID를 받음
+        await booksService.addLike(userId, bookId);
+        res.status(StatusCodes.CREATED).json({ message: '좋아요가 추가되었습니다.' });
+    } catch (error) {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+    }
+};
+
+// 좋아요 취소
+exports.removeLike = async (req, res) => {
+    try {
+        const { userId } = req.body; // Body에서 userId를 받음
+        const bookId = req.params.id; // URL 파라미터로 도서 ID를 받음
+        await booksService.removeLike(userId, bookId);
+        res.status(StatusCodes.OK).json({ message: '좋아요가 취소되었습니다.' });
+    } catch (error) {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+    }
+};
+
+// 좋아요 여부 확인
+exports.checkLike = async (req, res) => {
+    try {
+        const { userId } = req.body; // Body에서 userId를 받음
+        const bookId = req.params.id; // URL 파라미터로 도서 ID를 받음
+        const isLiked = await booksService.checkLike(userId, bookId);
+        res.status(StatusCodes.OK).json({ isLiked });
+    } catch (error) {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+    }
+};
