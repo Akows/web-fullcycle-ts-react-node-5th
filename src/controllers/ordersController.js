@@ -3,7 +3,7 @@ const ordersService = require('../services/ordersService');
 
 exports.getOrders = async (req, res) => {
     try {
-        const userId = req.query.userId; // Query 파라미터로 사용자 ID 전달
+        const userId = req.userId;
         if (!userId) {
             return res.status(StatusCodes.BAD_REQUEST).json({ error: 'userId가 필요합니다.' });
         }
@@ -17,7 +17,8 @@ exports.getOrders = async (req, res) => {
 
 exports.createOrder = async (req, res) => {
     try {
-        const { userId, items, delivery_info } = req.body;
+        const userId = req.userId;
+        const { items, delivery_info } = req.body;
 
         if (!userId) {
             return res.status(StatusCodes.BAD_REQUEST).json({ error: 'userId가 필요합니다.' });
@@ -38,7 +39,7 @@ exports.createOrder = async (req, res) => {
 
 exports.getOrderDetails = async (req, res) => {
     try {
-        const { userId } = req.body;
+        const userId = req.userId;
         const orderId = req.params.orderId;
 
         if (!userId || !orderId) {
@@ -75,7 +76,7 @@ exports.getDeliveryInfo = async (req, res) => {
 
 exports.getRecentOrder = async (req, res) => {
     try {
-        const { userId } = req.query;
+        const userId = req.userId;
 
         if (!userId) {
             return res.status(StatusCodes.BAD_REQUEST).json({ error: 'userId가 필요합니다.' });

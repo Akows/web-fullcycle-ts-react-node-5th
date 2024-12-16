@@ -11,4 +11,7 @@ router.post('/login', authController.login);
 // 비밀번호 초기화
 router.post('/reset-password', authController.resetPassword);
 
+// 토큰 재발급
+router.post('/refresh-token', authController.refreshToken);
+
 module.exports = router;

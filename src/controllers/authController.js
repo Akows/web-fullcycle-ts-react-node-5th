@@ -14,17 +14,41 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const token = await authService.login(email, password);
+        const { accessToken, refreshToken } = await authService.login(email, password);
 
-        // 토큰을 쿠키로 설정
-        res.cookie('authToken', token, {
-            httpOnly: true, // JavaScript에서 접근할 수 없도록 설정 (보안 강화)
-            secure: process.env.NODE_ENV === 'production', // HTTPS에서만 쿠키가 전송되도록 설정 (운영 환경일 경우)
-            maxAge: 60 * 60 * 1000, // 1시간 후 만료
-            sameSite: 'strict', // 크로스 사이트 요청 방지
+        // 액세스 토큰은 HTTP 응답 헤더에 설정
+        res.cookie('authToken', accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 15 * 60 * 1000,
         });
 
-        res.status(StatusCodes.OK).json({ message: '로그인이 성공적으로 완료되었습니다.' });
+        // 리프레시 토큰은 HTTP 응답 헤더 또는 Body에 전달
+        res.status(StatusCodes.OK).json({ refreshToken });
+    } catch (error) {
+        res.status(StatusCodes.UNAUTHORIZED).json({ error: error.message });
+    }
+};
+
+exports.refreshToken = async (req, res) => {
+    try {
+        const { refreshToken } = req.body;
+
+        if (!refreshToken) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: '리프레시 토큰이 필요합니다.' });
+        }
+
+        // 서비스 호출로 비즈니스 로직 위임
+        const newAccessToken = await authService.verifyRefreshTokenAndGenerateAccessToken(refreshToken);
+
+        // 새로운 액세스 토큰을 쿠키와 응답에 설정
+        res.cookie('authToken', newAccessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 15 * 60 * 1000, // 15분
+        });
+
+        res.status(StatusCodes.OK).json({ accessToken: newAccessToken });
     } catch (error) {
         res.status(StatusCodes.UNAUTHORIZED).json({ error: error.message });
     }
