@@ -15,6 +15,24 @@ exports.getCartItems = async (req, res) => {
     }
 };
 
+// 선택된 장바구니 항목 조회
+exports.getSelectedCartItems = async (req, res) => {
+    try {
+        const { userId, selectedItems } = req.body;
+
+        // 요청 데이터 검증
+        if (!userId || !Array.isArray(selectedItems) || selectedItems.length === 0) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: '유효하지 않은 요청 데이터입니다.' });
+        }
+
+        const items = await cartService.getSelectedCartItems(userId, selectedItems);
+        res.status(StatusCodes.OK).json({ selectedItems: items });
+    } catch (error) {
+        console.error('Error in getSelectedCartItems:', error.message); // 추가된 로그
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: '선택된 항목 조회 중 문제가 발생했습니다.' });
+    }
+};
+
 // 장바구니에 도서 추가
 exports.addToCart = async (req, res) => {
     try {

@@ -18,6 +18,29 @@ exports.getCartItems = async (userId) => {
     return rows;
 };
 
+exports.getSelectedCartItems = async (userId, selectedItems) => {
+    // 배열 크기만큼 ? 플레이스홀더 생성
+    const placeholders = selectedItems.map(() => '?').join(', ');
+
+    // SQL 쿼리 작성
+    const query = `
+        SELECT 
+            cart.id AS cart_id,
+            cart.quantity,
+            books.id AS book_id,
+            books.title,
+            books.price,
+            books.image_url
+        FROM cart
+        JOIN books ON cart.book_id = books.id
+        WHERE cart.user_id = ? AND cart.book_id IN (${placeholders})
+    `;
+
+    // 매개변수로 userId와 selectedItems 배열을 전달
+    const [rows] = await db.execute(query, [userId, ...selectedItems]);
+    return rows;
+};
+
 // 장바구니에 도서 추가
 exports.addToCart = async (userId, bookId, quantity) => {
     const query = `
