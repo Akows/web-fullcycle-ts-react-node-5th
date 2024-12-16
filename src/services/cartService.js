@@ -22,6 +22,12 @@ exports.getSelectedCartItems = async (userId, selectedItems) => {
     // 배열 크기만큼 ? 플레이스홀더 생성
     const placeholders = selectedItems.map(() => '?').join(', ');
 
+    // map함수를 통해 selectedItems 배열 내부의 크기와 동일하게,
+    // 모든 index가 ?로 채워진 배열이 반환된다.
+    // join함수를 통해 배열 내부의 모든 요소들을 문자열로 반환,
+    // 다만 요소 사이사이에 ', ' 문자를 넣어 구분자를 넣어준다.
+    // 이렇게 해서 SQL 쿼리문에 능동적으로 매개변수 칸을 만들어줄 수 있다.
+
     // SQL 쿼리 작성
     const query = `
         SELECT 
