@@ -116,8 +116,8 @@ exports.getFilteredBooks = async (page = 1, limit = 10, categoryId = null, isNew
     }
 
     // (3) 페이징 조건 추가
-    query += ` LIMIT ? OFFSET ?`;  // LIMIT과 OFFSET을 추가하여 페이징 구현
-    params.push(limit, offset);    // limit(페이지당 항목 수)와 offset(시작 위치)을 파라미터로 추가
+    // 페이징 조건을 쿼리에 직접 삽입
+    query += ` LIMIT ${parseInt(limit, 10)} OFFSET ${parseInt(offset, 10)}`;
 
     // (4) 데이터 조회 쿼리 실행
     const [rows] = await db.execute(query, params);
