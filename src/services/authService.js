@@ -72,7 +72,9 @@ exports.verifyRefreshTokenAndGenerateAccessToken = async (refreshToken) => {
         // 새로운 액세스 토큰 생성
         return jwt.sign({ id: decoded.id }, process.env.JWT_SECRET_KEY, { expiresIn: '15m' });
     } catch (error) {
-        console.error('Error in verifyRefreshTokenAndGenerateAccessToken:', error.name, error.message);
+        if (error.name === 'TokenExpiredError') {
+            throw new Error('리프레시 토큰이 만료되었습니다. 다시 로그인하십시오.');
+        }
         throw new Error('리프레시 토큰 검증 실패');
     }
 };

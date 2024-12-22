@@ -38,19 +38,19 @@ exports.refreshToken = async (req, res) => {
             return res.status(StatusCodes.BAD_REQUEST).json({ error: '리프레시 토큰이 필요합니다.' });
         }
 
-        // 서비스 호출로 비즈니스 로직 위임
+        // 서비스 호출
         const newAccessToken = await authService.verifyRefreshTokenAndGenerateAccessToken(refreshToken);
 
-        // 새로운 액세스 토큰을 쿠키와 응답에 설정
+        // 새로운 액세스 토큰을 쿠키에 설정
         res.cookie('authToken', newAccessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             maxAge: 15 * 60 * 1000, // 15분
         });
 
-        res.status(StatusCodes.OK).json({ accessToken: newAccessToken });
+        return res.status(StatusCodes.OK).json({ accessToken: newAccessToken });
     } catch (error) {
-        res.status(StatusCodes.UNAUTHORIZED).json({ error: error.message });
+        return res.status(StatusCodes.UNAUTHORIZED).json({ error: error.message });
     }
 };
 
