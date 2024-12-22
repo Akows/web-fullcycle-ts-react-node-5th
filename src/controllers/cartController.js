@@ -1,35 +1,19 @@
 const { StatusCodes } = require('http-status-codes');
 const cartService = require('../services/cartService');
 
-// 장바구니 목록 조회
 exports.getCartItems = async (req, res) => {
     try {
-        const userId = req.query.userId; // userId를 URL 파라미터로 받음
+        const userId = req.query.userId || req.body.userId;
+        const selectedItems = req.body.selectedItems || null;
+
         if (!userId) {
             return res.status(StatusCodes.BAD_REQUEST).json({ error: 'userId가 필요합니다.' });
         }
-        const items = await cartService.getCartItems(userId);
+
+        const items = await cartService.getCartItems(userId, selectedItems);
         res.status(StatusCodes.OK).json({ items });
     } catch (error) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: '장바구니 조회 중 문제가 발생했습니다.' });
-    }
-};
-
-// 선택된 장바구니 항목 조회
-exports.getSelectedCartItems = async (req, res) => {
-    try {
-        const { userId, selectedItems } = req.body;
-
-        // 요청 데이터 검증
-        if (!userId || !Array.isArray(selectedItems) || selectedItems.length === 0) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ error: '유효하지 않은 요청 데이터입니다.' });
-        }
-
-        const items = await cartService.getSelectedCartItems(userId, selectedItems);
-        res.status(StatusCodes.OK).json({ selectedItems: items });
-    } catch (error) {
-        console.error('Error in getSelectedCartItems:', error.message); // 추가된 로그
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: '선택된 항목 조회 중 문제가 발생했습니다.' });
     }
 };
 

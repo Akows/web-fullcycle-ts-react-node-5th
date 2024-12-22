@@ -1,8 +1,7 @@
 const db = require('../config/database');
 
-// 장바구니 목록 조회
-exports.getCartItems = async (userId) => {
-    const query = `
+exports.getCartItems = async (userId, selectedItems = null) => {
+    let query = `
         SELECT 
             cart.id AS cart_id,
             cart.quantity,
@@ -14,36 +13,16 @@ exports.getCartItems = async (userId) => {
         JOIN books ON cart.book_id = books.id
         WHERE cart.user_id = ?
     `;
-    const [rows] = await db.execute(query, [userId]);
-    return rows;
-};
+    const params = [userId];
 
-exports.getSelectedCartItems = async (userId, selectedItems) => {
-    // 배열 크기만큼 ? 플레이스홀더 생성
-    const placeholders = selectedItems.map(() => '?').join(', ');
+    // 선택 항목이 주어진 경우 추가 조건 적용
+    if (selectedItems && Array.isArray(selectedItems) && selectedItems.length > 0) {
+        const placeholders = selectedItems.map(() => '?').join(', ');
+        query += ` AND cart.book_id IN (${placeholders})`;
+        params.push(...selectedItems);
+    }
 
-    // map함수를 통해 selectedItems 배열 내부의 크기와 동일하게,
-    // 모든 index가 ?로 채워진 배열이 반환된다.
-    // join함수를 통해 배열 내부의 모든 요소들을 문자열로 반환,
-    // 다만 요소 사이사이에 ', ' 문자를 넣어 구분자를 넣어준다.
-    // 이렇게 해서 SQL 쿼리문에 능동적으로 매개변수 칸을 만들어줄 수 있다.
-
-    // SQL 쿼리 작성
-    const query = `
-        SELECT 
-            cart.id AS cart_id,
-            cart.quantity,
-            books.id AS book_id,
-            books.title,
-            books.price,
-            books.image_url
-        FROM cart
-        JOIN books ON cart.book_id = books.id
-        WHERE cart.user_id = ? AND cart.book_id IN (${placeholders})
-    `;
-
-    // 매개변수로 userId와 selectedItems 배열을 전달
-    const [rows] = await db.execute(query, [userId, ...selectedItems]);
+    const [rows] = await db.execute(query, params);
     return rows;
 };
 
