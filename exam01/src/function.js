@@ -32,6 +32,8 @@ console.log("화살표 함수로 곱하기: ", multiply(3, 4));
     console.log("이 함수는 즉시 실행됩니다!");
 })();
 
+
+
 // 3. 고차 함수
 // 다른 함수를 인자로 받거나 반환할 수 있는 함수
 const executeFunction = (func) => {
@@ -39,6 +41,8 @@ const executeFunction = (func) => {
     func();
 };
 executeFunction(() => console.log("인자로 전달된 함수 실행"));
+
+
 
 // 4. 함수에서 기본 매개변수 설정
 const greetWithName = (name = "익명") => {
