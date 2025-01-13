@@ -1,0 +1,22 @@
+.todoApp {
+  display: flex; /* 좌우 배치를 위한 플렉스 컨테이너 설정 */
+  flex-direction: row; /* 기본값: 가로 정렬 */
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.mainContent {
+  flex: 1; /* 남은 공간을 채우도록 설정 */
+  padding: 35px 50px;
+  background: #ffffff;
+  overflow-y: auto;
+}
+
+.clockWrapper {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
